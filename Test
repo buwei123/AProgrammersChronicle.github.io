@@ -1,0 +1,73 @@
+using ScintillaNET;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace 数据工具箱.主界面
+{
+    public partial class Form1 : Form
+    {
+
+        public Form1()
+        {
+            InitializeComponent();
+
+            scintilla.StyleResetDefault();
+            scintilla.Styles[Style.Default].Font = "Consolas";
+            scintilla.Styles[Style.Default].Size = 10;
+            scintilla.StyleClearAll();
+
+          
+            // Configure the CPP (C#) lexer styles
+            scintilla.Styles[Style.Cpp.Default].ForeColor = Color.Silver;
+            scintilla.Styles[Style.Cpp.Comment].ForeColor = Color.FromArgb(0, 128, 0); // Green
+            scintilla.Styles[Style.Cpp.CommentLine].ForeColor = Color.FromArgb(0, 128, 0); // Green
+            scintilla.Styles[Style.Cpp.CommentLineDoc].ForeColor = Color.FromArgb(128, 128, 128); // Gray
+            scintilla.Styles[Style.Cpp.Number].ForeColor = Color.Olive;
+            scintilla.Styles[Style.Cpp.Word].ForeColor = Color.Blue;
+            scintilla.Styles[Style.Cpp.Word2].ForeColor = Color.Blue;
+            scintilla.Styles[Style.Cpp.String].ForeColor = Color.FromArgb(163, 21, 21); // Red
+            scintilla.Styles[Style.Cpp.Character].ForeColor = Color.FromArgb(163, 21, 21); // Red
+            scintilla.Styles[Style.Cpp.Verbatim].ForeColor = Color.FromArgb(163, 21, 21); // Red
+            scintilla.Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
+            scintilla.Styles[Style.Cpp.Operator].ForeColor = Color.Purple;
+            scintilla.Styles[Style.Cpp.Preprocessor].ForeColor = Color.Maroon;
+
+            scintilla.Lexer = Lexer.Cpp;
+
+            scintilla.SetKeywords(0, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
+            scintilla.SetKeywords(1, "bool byte char class const decimal double enum float int long sbyte short static string struct uint ulong ushort void");
+            // 设置 C# 关键字
+            string csharpKeywords = "abstract as base bool break byte case catch char checked class const continue " +
+                                    "decimal default delegate do double else enum event explicit extern false " +
+                                    "finally fixed float for foreach goto if implicit in int interface internal " +
+                                    "is lock long namespace new null object operator out override params private " +
+                                    "protected public readonly ref return sbyte sealed short sizeof stackalloc " +
+                                    "static string struct switch this throw true try typeof uint ulong unchecked " +
+                                    "unsafe ushort using virtual void volatile while";
+            scintilla.SetKeywords(0, csharpKeywords);
+            scintilla.Text = "using 数据工具箱.EXcel数据导入;\r\nusing 数据工具箱.主界面;\r\nusing 数据工具箱.九鼎对账单;\r\nusing 数据工具箱.用户登陆;\r\nusing 数据工具箱.系统更新;\r\nusing System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing System.Threading.Tasks;\r\nusing System.Windows.Forms;\r\nusing 数据工具箱.BOM查询;\r\nusing 数据工具箱.计划欠料分析表;\r\nusing 数据工具箱.九鼎采购转销售;\r\nusing 数据工具箱.计划订单纸箱用量更新;\r\nusing 数据工具箱.Utility;\r\nusing log4net.Config;\r\nusing System.IO;\r\nusing 数据工具箱.文件上传数据库;\r\nusing 数据工具箱.欢迎界面;\r\nusing 数据工具箱.用户管理;\r\nusing IWshRuntimeLibrary;\r\nusing 数据工具箱.Common;\r\nusing 数据工具箱.更新日志;\r\nusing UpdateLog = 数据工具箱.更新日志.UpdateLog;\r\nusing 数据工具箱.易飞BOM子项更新;\r\nusing System.Diagnostics;\r\nusing System.Threading;\r\nusing 数据工具箱.帮助;\r\nusing System.Drawing;\r\nusing 数据工具箱.易飞最新的进货日期查询;\r\nusing System.Text;\r\nusing System.Xml;\r\nusing 数据工具箱.Configs;\r\nusing 数据工具箱.更新物料属性;\r\nusing 数据工具箱.修改密码;\r\nusing 数据工具箱.DataBase;\r\nusing 数据工具箱.活动记录;\r\nusing 数据工具箱.帮助.登录日志;\r\nusing 数据工具箱.Windows服务;\r\n\r\nnamespace 数据工具箱\r\n{\r\n    static class Program\r\n    {\r\n        /// <summary>\r\n        /// 应用程序的主入口点。\r\n        /// </summary>\r\n        [STAThread]\r\n        static void Main(string [] args)\r\n        {\r\n            // 创建或更新桌面快捷方式\r\n            string shortcutPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), \"数据工具箱.lnk\");\r\n            string targetPath = Application.ExecutablePath;\r\n\r\n            if (System.IO.File.Exists(shortcutPath))\r\n            {\r\n                System.IO.File.Delete(shortcutPath);\r\n            }\r\n\r\n            WshShell shell = new WshShell();\r\n            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);\r\n            shortcut.TargetPath = targetPath;\r\n            shortcut.WorkingDirectory = Path.GetDirectoryName(targetPath);   // 设置起始位置为应用程序所在目录\r\n            shortcut.Description = \"数据工具箱\";\r\n            shortcut.Save();\r\n\r\n            bool isNewInstance;\r\n            //创建进程互斥锁\r\n            using (Mutex mutex = new Mutex(true, \"数据工具箱\", out isNewInstance))\r\n            {\r\n                if (!isNewInstance)\r\n                {\r\n                    // 向已在运行的进程发送消息\r\n                    NativeMethods.PostMessage(NativeMethods.HWND_BROADCAST, NativeMethods.WM_SHOWME, IntPtr.Zero, IntPtr.Zero);\r\n                    return;\r\n                }\r\n                Application.EnableVisualStyles();\r\n                Application.SetCompatibleTextRenderingDefault(false);\r\n                LoadLog4net.LoadLog4netXML();\r\n                _ = LoadConnStr.LoadConnStrSetAsync();\r\n                Application.Run(new Form1());   \r\n            }\r\n        }     \r\n    }\r\n}\r\n";
+        }
+
+        private void scintilla_CharAdded(object sender, CharAddedEventArgs e)
+        {
+            // Find the word start
+            var currentPos = scintilla.CurrentPosition;
+            var wordStartPos = scintilla.WordStartPosition(currentPos, true);
+
+            // Display the autocompletion list
+            var lenEntered = currentPos - wordStartPos;
+            if (lenEntered > 0)
+            {
+                if (!scintilla.AutoCActive)
+                    scintilla.AutoCShow(lenEntered, "abstract as base break case catch checked continue default delegate do else event explicit extern false finally fixed for foreach goto if implicit in interface internal is lock namespace new null object operator out override params private protected public readonly ref return sealed sizeof stackalloc switch this throw true try typeof unchecked unsafe using virtual while");
+            }
+        }
+    }
+}
